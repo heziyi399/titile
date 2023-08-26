@@ -6,42 +6,28 @@ import java.util.*;
  * @author hzy
  * @date 2023-03-12
  */
+class Meeting {
+    int id;
+    int time;
+
+    public Meeting(int id, int time) {
+        this.id = id;
+        this.time = time;
+    }
+}
 public class Main2 {
   static  int[]top=new int[3];//人数上限
   static  int[]pay=new int[3];
   static List<String> users =new ArrayList<String>();
-
-
-
         static int[][] grid;
         static int rows, cols;
 
+
         public static void main(String[] args) {
-            Scanner scanner = new Scanner(System.in);
-
-            rows = scanner.nextInt();
-            cols = scanner.nextInt();
-            grid = new int[rows][cols];
-
-            for (int i = 0; i < rows; i++) {
-                for (int j = 0; j < cols; j++) {
-                    grid[i][j] = scanner.nextInt();
-                }
-            }
-
-            scanner.close();
-
-            int[][] dp = new int[rows][cols];
-            int maxBeans = 0;
-
-            for (int i = 0; i < rows; i++) {
-                for (int j = 0; j < cols; j++) {
-                    dp[i][j] = eatBeans(i, j, grid, dp);
-                    maxBeans = Math.max(maxBeans, dp[i][j]);
-                }
-            }
-
-            System.out.println(maxBeans);
+        int i=10;
+        int j=5+(i++);
+        j+=i;
+            System.out.println(j++);
         }
 
     static int eatBeans(int x, int y, int[][] grid, int[][] dp) {
