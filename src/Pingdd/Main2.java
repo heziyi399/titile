@@ -1,5 +1,6 @@
 package Pingdd;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 /**
@@ -22,14 +23,41 @@ public class Main2 {
         static int[][] grid;
         static int rows, cols;
 
+    public static void main(String[] args) {
+        int[][] intervals = {{1, 5}, {3, 8}, {6, 10}};
+        int maxSum = findMaxSum(intervals);
+        System.out.println("Maximum Sum: " + maxSum);
+    }
 
-        public static void main(String[] args) {
-        int i=10;
-        int j=5+(i++);
-        j+=i;
-            System.out.println(j++);
+    public static int findMaxSum(int[][] intervals) {
+        int maxSum = 0;
+
+        // Iterate through all pairs of intervals
+        for (int i = 0; i < intervals.length; i++) {
+            for (int j = 0; j < intervals.length; j++) {
+                if (i != j) { // Ensure the intervals are different
+                    int interval1Start = intervals[i][0];
+                    int interval1End = intervals[i][1];
+                    int interval2Start = intervals[j][0];
+                    int interval2End = intervals[j][1];
+
+                    // Find the maximum number that exists in both intervals
+                    int maxInBothIntervals = Math.max(
+                            Math.min(interval1End, interval2End),
+                            Math.min(interval1Start, interval2Start)
+                    );
+
+                    // Calculate the sum for this pair of intervals
+                    int sum = maxInBothIntervals + Math.max(interval1End, interval2End);
+
+                    // Update the maximum sum if the current sum is greater
+                    maxSum = Math.max(maxSum, sum);
+                }
+            }
         }
 
+        return maxSum;
+    }
     static int eatBeans(int x, int y, int[][] grid, int[][] dp) {
         if (x < 0 || x >= grid.length || y < 0 || y >= grid[0].length) {
             return 0;

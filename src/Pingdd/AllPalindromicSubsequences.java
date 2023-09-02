@@ -9,12 +9,55 @@ import java.util.List;
 
 public class AllPalindromicSubsequences {
     public static void main(String[] args) {
-        String s = "ooppkkoo";
-        List<String> palindromicSubsequences = findPalindromicSubsequences(s);
+        int num = 6;
+        int k = 13;
 
-        for (String subsequence : palindromicSubsequences) {
-            System.out.println(subsequence);
+        int[] operations = calculateOperations(num, k);
+        System.out.println("Multiply by 2: " + operations[0]);
+        System.out.println("Divide by 2: " + operations[1]);
+    }
+
+    public static int[] calculateOperations(int num, int k) {
+        int[] primeFactors = new int[31];
+        int count = 0;
+
+        // Count the occurrences of 2 as a prime factor
+        while (num % 2 == 0) {
+            primeFactors[count++] = 2;
+            num /= 2;
         }
+
+        // Count the other prime factors
+        for (int i = 3; i * i <= num; i += 2) {
+            while (num % i == 0) {
+                primeFactors[count++] = i;
+                num /= i;
+            }
+        }
+
+        // If num is still greater than 2, it's a prime factor
+        if (num > 2) {
+            primeFactors[count++] = num;
+        }
+
+        int multiplyOperations = 0;
+        int divideOperations = 0;
+
+        for (int i = 0; i < count; i++) {
+            int factorCount = 1;
+            while (i + 1 < count && primeFactors[i + 1] == primeFactors[i]) {
+                factorCount++;
+                i++;
+            }
+
+            if (factorCount < k) {
+                multiplyOperations += k - factorCount;
+            } else if (factorCount > k) {
+                divideOperations += factorCount - k;
+            }
+        }
+
+        return new int[]{multiplyOperations, divideOperations};
     }
 
     public static List<String> findPalindromicSubsequences(String s) {
