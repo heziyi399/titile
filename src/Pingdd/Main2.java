@@ -22,84 +22,51 @@ public class Main2 {
   static List<String> users =new ArrayList<String>();
         static int[][] grid;
         static int rows, cols;
-
     public static void main(String[] args) {
-        int[][] intervals = {{1, 5}, {3, 8}, {6, 10}};
-        int maxSum = findMaxSum(intervals);
-        System.out.println("Maximum Sum: " + maxSum);
+        Scanner scanner = new Scanner(System.in);
+        int n = scanner.nextInt();
+        int m = scanner.nextInt();
+        int[] prices = new int[n];
+        for (int i = 0; i < n; i++) {
+            prices[i] = scanner.nextInt();
+        }
+        List<Discount> discounts = new ArrayList<>();
+        for (int i = 0; i < m; i++) {
+            int b = scanner.nextInt();
+            int c = scanner.nextInt();
+            discounts.add(new Discount(b, c));
+        }
+        scanner.close();
+
+        long result = calculateMinimumCost(n, prices, discounts);
+        System.out.println(result);
     }
 
-    public static int findMaxSum(int[][] intervals) {
-        int maxSum = 0;
+    static class Discount {
+        int b;
+        int c;
 
-        // Iterate through all pairs of intervals
-        for (int i = 0; i < intervals.length; i++) {
-            for (int j = 0; j < intervals.length; j++) {
-                if (i != j) { // Ensure the intervals are different
-                    int interval1Start = intervals[i][0];
-                    int interval1End = intervals[i][1];
-                    int interval2Start = intervals[j][0];
-                    int interval2End = intervals[j][1];
+        Discount(int b, int c) {
+            this.b = b;
+            this.c = c;
+        }
+    }
 
-                    // Find the maximum number that exists in both intervals
-                    int maxInBothIntervals = Math.max(
-                            Math.min(interval1End, interval2End),
-                            Math.min(interval1Start, interval2Start)
-                    );
+    public static long calculateMinimumCost(int n, int[] prices, List<Discount> discounts) {
+        long[] dp = new long[n + 1];
+        Arrays.fill(dp, Long.MAX_VALUE);
+        dp[0] = 0;
 
-                    // Calculate the sum for this pair of intervals
-                    int sum = maxInBothIntervals + Math.max(interval1End, interval2End);
-
-                    // Update the maximum sum if the current sum is greater
-                    maxSum = Math.max(maxSum, sum);
+        for (int i = 1; i <= n; i++) {
+            dp[i] = dp[i - 1] + prices[i - 1];
+            for (Discount discount : discounts) {
+                if (i >= discount.b) {
+                    dp[i] = Math.min(dp[i], dp[i - discount.b] + prices[i - 1] - discount.c);
                 }
             }
         }
 
-        return maxSum;
-    }
-    static int eatBeans(int x, int y, int[][] grid, int[][] dp) {
-        if (x < 0 || x >= grid.length || y < 0 || y >= grid[0].length) {
-            return 0;
-        }
-
-        if (dp[x][y] != 0) {
-            return dp[x][y];
-        }
-
-        int eatenBeans = 1;
-        int originalPower = grid[x][y];
-
-        if (x + 1 < grid.length && originalPower > grid[x + 1][y]) {
-            eatenBeans = Math.max(eatenBeans, 1 + eatBeans(x + 1, y, grid, dp));
-        }
-
-        if (x - 1 >= 0 && originalPower > grid[x - 1][y]) {
-            eatenBeans = Math.max(eatenBeans, 1 + eatBeans(x - 1, y, grid, dp));
-        }
-
-        if (y + 1 < grid[0].length && originalPower > grid[x][y + 1]) {
-            eatenBeans = Math.max(eatenBeans, 1 + eatBeans(x, y + 1, grid, dp));
-        }
-
-        if (y - 1 >= 0 && originalPower > grid[x][y - 1]) {
-            eatenBeans = Math.max(eatenBeans, 1 + eatBeans(x, y - 1, grid, dp));
-        }
-
-        dp[x][y] = eatenBeans;
-        return eatenBeans;
-    }
-
-
-    public static void countUniqueSubarrays(int[] arr, Set<String> uniqueSubarrays) {
-        int n = arr.length;
-        for (int len = 1; len <= n; len++) {
-            for (int i = 0; i <= n - len; i++) {
-                int[] subarray = new int[len];
-                System.arraycopy(arr, i, subarray, 0, len);
-                uniqueSubarrays.add(arrayToString(subarray));
-            }
-        }
+        return dp[n];
     }
 
     public static String arrayToString(int[] arr) {
