@@ -1,79 +1,42 @@
 package Pingdd;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.util.concurrent.Semaphore;
 
 /**
  * @author hzy
  * @date 2023-03-12
  */
 class Meeting {
-    int id;
-    int time;
+    private static final int PRINT_COUNT = 10;
+    private static Semaphore semaphoreA = new Semaphore(1);
+    private static Semaphore semaphoreB = new Semaphore(0);
+    private static Semaphore semaphoreC = new Semaphore(0);
 
-    public Meeting(int id, int time) {
-        this.id = id;
-        this.time = time;
-    }
-}
-public class Main2 {
-  static  int[]top=new int[3];//人数上限
-  static  int[]pay=new int[3];
-  static List<String> users =new ArrayList<String>();
-        static int[][] grid;
-        static int rows, cols;
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        int n = scanner.nextInt();
-        int m = scanner.nextInt();
-        int[] prices = new int[n];
-        for (int i = 0; i < n; i++) {
-            prices[i] = scanner.nextInt();
-        }
-        List<Discount> discounts = new ArrayList<>();
-        for (int i = 0; i < m; i++) {
-            int b = scanner.nextInt();
-            int c = scanner.nextInt();
-            discounts.add(new Discount(b, c));
-        }
-        scanner.close();
+        Thread threadA = new Thread(() -> print("A", semaphoreA, semaphoreB));
+        Thread threadB = new Thread(() -> print("B", semaphoreB, semaphoreC));
+        Thread threadC = new Thread(() -> print("C", semaphoreC, semaphoreA));
 
-        long result = calculateMinimumCost(n, prices, discounts);
-        System.out.println(result);
+        threadA.start();
+        threadB.start();
+        threadC.start();
     }
 
-    static class Discount {
-        int b;
-        int c;
-
-        Discount(int b, int c) {
-            this.b = b;
-            this.c = c;
-        }
-    }
-
-    public static long calculateMinimumCost(int n, int[] prices, List<Discount> discounts) {
-        long[] dp = new long[n + 1];
-        Arrays.fill(dp, Long.MAX_VALUE);
-        dp[0] = 0;
-
-        for (int i = 1; i <= n; i++) {
-            dp[i] = dp[i - 1] + prices[i - 1];
-            for (Discount discount : discounts) {
-                if (i >= discount.b) {
-                    dp[i] = Math.min(dp[i], dp[i - discount.b] + prices[i - 1] - discount.c);
-                }
+    private static void print(String message, Semaphore current, Semaphore next) {
+        for (int i = 0; i < PRINT_COUNT; i++) {
+            try {
+                current.acquire();
+                System.out.print(message);
+                next.release();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
             }
         }
-
-        return dp[n];
-    }
-
-    public static String arrayToString(int[] arr) {
-        StringBuilder builder = new StringBuilder();
-        for (int num : arr) {
-            builder.append(num);
-        }
-        return builder.toString();
+        // 当某个线程打印完成后，释放下一个线程的许可，确保线程执行顺序
+        next.release();
     }
 }
